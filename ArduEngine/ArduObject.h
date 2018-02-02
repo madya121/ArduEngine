@@ -6,7 +6,7 @@
 class ArduObject {
   public:
     ArduObject(): isEnabled(true) {};
-    virtual void Update(Arduboy2 &arduboy);
+    virtual void Update(Arduboy2 &arduboy) {};
 
     bool isEnabled;
 };

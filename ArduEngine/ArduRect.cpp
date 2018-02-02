@@ -1,3 +1,6 @@
+#ifndef ARDU_RECT_CPP
+#define ARDU_RECT_CPP
+
 #include "ArduRect.h"
 
 void ArduRect::Update(Arduboy2 &arduboy) {
@@ -9,3 +12,5 @@ void ArduRect::Update(Arduboy2 &arduboy) {
   else
     arduboy.fillRect(x, y, w, h, color);
 }
+
+#endif

@@ -56,6 +56,31 @@ def refresh_game_state():
     cpp.close()
 '''
 
+def generate_game_scene(path, scene_name):
+    cpp = CppFile(path + scene_name + '.cpp')
+    cpp('#ifndef ' + scene_name + '_CPP')
+    cpp('#define ' + scene_name + '_CPP')
+
+    cpp('\n#include <Arduboy2.h>')
+    cpp('#include "ArduEngine/ArduScene.h"\n')
+
+    with cpp.subs(name=scene_name):
+        with cpp.block('class $name$ : public ArduScene', ';'):
+            cpp.label('public')
+            cpp('void PreScene(Arduboy2 &arduboy);')
+            cpp('void Scene(Arduboy2 &arduboy);')
+    cpp('')
+
+    with cpp.block('void ' + scene_name + '::PreScene(Arduboy2 &arduboy)'):
+        cpp('')
+    cpp('')
+
+    with cpp.block('void ' + scene_name + '::Scene(Arduboy2 &arduboy)'):
+        cpp('')
+
+    cpp('\n#endif')
+    cpp.close()
+
 def generate_global(path):
     cpp = CppFile(path + 'Global.h')
     cpp('#ifndef GLOBAL_H')
@@ -77,7 +102,7 @@ def generate_global(path):
     # Declarations
     cpp('Arduboy2 arduboy;')
     cpp('ArduboyTones sound(arduboy.audio.enabled);')
-    cpp('ArduEngine arduEngine = new ArduEngine();')
+    cpp('ArduEngine *arduEngine = new ArduEngine();')
 
     cpp('\n#endif')
     cpp.close()
@@ -87,7 +112,7 @@ def generate_main_ino(path, game_name):
 
     cpp('#include "Global.h"\n')
 
-    with cpp.block('void InitializeScenes();'):
+    with cpp.block('void InitializeScenes()'):
         cpp('// TODO: Add example scene here')
 
     cpp('')
@@ -95,14 +120,14 @@ def generate_main_ino(path, game_name):
         cpp('arduboy.begin();')
         cpp('arduboy.setFrameRate(60);')
         cpp('arduboy.initRandomSeed();\n')
-        cpp('InitializeScenes()')
+        cpp('InitializeScenes();')
 
     cpp('')
     with cpp.block('void loop()'):
         cpp('if (!(arduboy.nextFrame())) return;')
         cpp('arduboy.pollButtons();')
         cpp('arduboy.clear();\n')
-        cpp('arduEngine.Update(arduboy);\n')
+        cpp('arduEngine->Update(arduboy);\n')
         cpp('arduboy.display();')
 
     cpp.close()
@@ -119,8 +144,11 @@ def create_new_game(game_name):
         generate_global(game_name + '/')
         print ('Copying ArduEngine library into {0}...'.format(game_name))
         copy_tree("ArduEngine", game_name + "/ArduEngine")
+        print ('Add Sample Splash Screen Scene')
+        generate_game_scene(game_name + '/', 'SplashScreen')
         print ('{0} is ready to develop!'.format(game_name))
 
 # add_game_scene('MainMenu')
 # generate_main_ino('GameSomething')
 create_new_game(sys.argv[1])
+# generate_game_scene('Scene');

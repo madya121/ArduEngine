@@ -1,3 +1,6 @@
+#ifndef ARDU_SPRITE_CPP
+#define ARDU_SPRITE_CPP
+
 #include "ArduSprite.h"
 
 void ArduSprite::Update(Arduboy2 &arduboy) {
@@ -6,3 +9,5 @@ void ArduSprite::Update(Arduboy2 &arduboy) {
 
   arduboy.drawBitmap(x, y, image, w, h, color);
 }
+
+#endif
