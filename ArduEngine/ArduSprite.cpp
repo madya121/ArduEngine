@@ -1,13 +1,13 @@
 #ifndef ARDU_SPRITE_CPP
 #define ARDU_SPRITE_CPP
 
-#include "ArduSprite.h"
+#include "ArduEngine.h"
 
-void ArduSprite::Update(Arduboy2 &arduboy) {
+void ArduSprite::Update(ArduEngine &engine) {
   if (!isEnabled)
     return;
 
-  arduboy.drawBitmap(x, y, image, w, h, color);
+  engine.arduboy->drawBitmap(x, y, image, w, h, color);
 }
 
 #endif
