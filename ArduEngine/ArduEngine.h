@@ -14,25 +14,31 @@ class ArduEngine {
     void FreedObjects();
     void RegisterScene(ArduScene &scene);
     void FreedScenes();
+    void SetScene(uint8_t sceneID);
 
     Arduboy2 *arduboy;
 
   private:
-    uint16_t totalObject;
-    uint16_t totalScene;
+    uint8_t totalObject;
+    uint8_t totalScene;
 
     ArduObject **objects;
     ArduScene **scenes;
 
-    uint16_t currentObjectLimit;
-    uint16_t currentSceneLimit;
+    uint8_t currentObjectLimit;
+    uint8_t currentSceneLimit;
+
+    ArduScene *currentScene;
 };
 
 class ArduScene {
   public:
-    ArduScene() {};
-    virtual void PreScene(ArduEngine &engine) {};
-    virtual void Scene(ArduEngine &engine) {};
+    ArduScene(uint8_t _sceneID): sceneID(_sceneID) {};
+    virtual void Load(ArduEngine &engine) {};
+    virtual void Run(ArduEngine &engine) {};
+    virtual void Destroy(ArduEngine &engine) {};
+
+    uint8_t sceneID;
 };
 
 class ArduObject {

@@ -4,58 +4,6 @@ import os
 import sys
 from distutils.dir_util import copy_tree
 
-# TODO: Work on Game Scene
-'''
-def add_game_scene(scene_name):
-    config = {}
-    game_states = []
-    with open('config.json') as json_data:
-        config = json.load(json_data)
-        game_states = config['game_states']
-
-    for state in game_states:
-        if scene_name == state:
-            raise Exception('Scene was already defined')
-
-    game_states.append(scene_name)
-    config['game_states'] = game_states
-
-    with open('config.json', 'w') as outfile:
-        json.dump(config, outfile)
-'''
-
-# TODO: Work On Game Scene
-'''
-def refresh_game_state():
-    config = {}
-    game_states = []
-    with open('config.json') as json_data:
-        config = json.load(json_data)
-        game_states = config['game_states']
-
-    cpp = CppFile('GameState.h')
-    cpp('/****************************')
-    cpp(' ** THIS FILE IS GENERATED **')
-    cpp(' ****************************/\n')
-
-    cpp('#ifndef GAME_STATE_H')
-    cpp('#define GAME_STATE_H\n')
-
-    index = 0
-    for state in game_states:
-        with cpp.subs(name=state.upper(), i=index):
-            cpp('#define $name$_PRE_SCENE $i$;')
-            index += 1
-        with cpp.subs(name=state.upper(), i=index):
-            cpp('#define $name$_SCENE $i$; \n')
-            index += 1
-        with cpp.block('void GoTo' + state + '()'):
-            cpp('return;')
-
-    cpp('\n#endif')
-    cpp.close()
-'''
-
 def generate_game_scene(path, scene_name):
     cpp = CppFile(path + scene_name + '.cpp')
     cpp('#ifndef ' + scene_name + '_CPP')
@@ -63,51 +11,26 @@ def generate_game_scene(path, scene_name):
 
     cpp('\n#include "ArduEngine/ArduEngine.h"\n')
 
-    cpp('#include "Images.h"\n')
+    cpp('#include "Images.h"')
+    cpp('#include "SceneID.h"\n')
 
     with cpp.subs(name=scene_name):
         with cpp.block('class $name$ : public ArduScene', ';'):
             cpp.label('public')
-            with cpp.block(scene_name + '(ArduEngine &engine)'):
+            with cpp.block(scene_name + '(ArduEngine &engine, uint8_t sceneID) : ArduScene(sceneID)'):
+                cpp('// This will be called once when the game start')
                 cpp('logo = new ArduSprite(0, 0, 128, 64, WHITE, arduengine_splash);')
                 cpp('engine.RegisterObject(*logo);')
-            with cpp.block('void PreScene(ArduEngine &engine)'):
-                cpp('')
-            with cpp.block('void Scene(ArduEngine &engine)'):
-                cpp('')
+            with cpp.block('void Load(ArduEngine &engine)'):
+                cpp('// This will be called once everytime we enter this scene')
+            with cpp.block('void Run(ArduEngine &engine)'):
+                cpp("// This will be called every frame when we're in this scene")
+            with cpp.block('void Destroy(ArduEngine &engine)'):
+                cpp('// This will be called once everytime we leave this scene')
 
-            cpp.label('private')
-            cpp('ArduSprite *logo;')
+            cpp.label('\nprivate')
+            cpp('  ArduSprite *logo;')
     cpp('')
-
-    cpp('\n#endif')
-    cpp.close()
-
-def generate_global(path):
-    cpp = CppFile(path + 'Global.h')
-    cpp('#ifndef GLOBAL_H')
-    cpp('#define GLOBAL_H\n')
-
-    # Includes
-    cpp('#include <Arduboy2.h>')
-    cpp('#include <ArduboyTones.h>')
-
-    cpp('')
-
-    cpp('#include "ArduEngine/ArduRect.cpp"')
-    cpp('#include "ArduEngine/ArduSprite.cpp"')
-    cpp('#include "ArduEngine/ArduEngine.cpp"')
-
-    cpp('')
-
-    cpp('#include "Images.h"')
-
-    cpp('')
-
-    # Declarations
-    cpp('Arduboy2 arduboy;')
-    cpp('ArduboyTones sound(arduboy.audio.enabled);')
-    cpp('ArduEngine *arduEngine = new ArduEngine(arduboy);')
 
     cpp('\n#endif')
     cpp.close()
@@ -115,19 +38,34 @@ def generate_global(path):
 def generate_main_ino(path, game_name):
     cpp = CppFile(path + game_name + '.ino')
 
-    cpp('#include "Global.h"\n')
-
+    # Includes
+    cpp('#include <Arduboy2.h>')
+    cpp('#include <ArduboyTones.h>')
     cpp('')
-
+    cpp('#include "ArduEngine/ArduRect.cpp"')
+    cpp('#include "ArduEngine/ArduSprite.cpp"')
+    cpp('#include "ArduEngine/ArduEngine.cpp"')
+    cpp('')
+    cpp('#include "Images.h"')
+    cpp('#include "SceneID.h"')
+    cpp('')
+    cpp('// Scene')
     cpp('#include "SplashScreen.cpp"')
-
     cpp('')
 
+    # Declarations
+    cpp('Arduboy2 arduboy;')
+    cpp('ArduboyTones sound(arduboy.audio.enabled);')
+    cpp('ArduEngine *arduEngine = new ArduEngine(arduboy);')
+
+    cpp('')
+    cpp('// Scene Declaration')
     cpp('SplashScreen *splashScreen;')
+    cpp('')
 
     with cpp.block('void InitializeScenes()'):
-        cpp('// TODO: Add example scene here')
-        cpp('splashScreen = new SplashScreen(*arduEngine);')
+        cpp('// Initialize Scene')
+        cpp('splashScreen = new SplashScreen(*arduEngine, 1);')
         cpp('arduEngine->RegisterScene(*splashScreen);')
 
     cpp('')
@@ -135,18 +73,27 @@ def generate_main_ino(path, game_name):
         cpp('arduboy.begin();')
         cpp('arduboy.setFrameRate(60);')
         cpp('arduboy.initRandomSeed();\n')
-        cpp('Serial.begin(9600);')
         cpp('InitializeScenes();')
 
     cpp('')
     with cpp.block('void loop()'):
-        cpp('Serial.println("count");')
         cpp('if (!(arduboy.nextFrame())) return;')
         cpp('arduboy.pollButtons();')
         cpp('arduboy.clear();\n')
         cpp('arduEngine->Update(arduboy);\n')
         cpp('arduboy.display();')
 
+    cpp.close()
+
+def generate_scene_id_file(path):
+    cpp = CppFile(path + 'SceneID.h')
+
+    cpp('#ifndef SCENE_ID_H')
+    cpp('#define SCENE_ID_H\n')
+
+    cpp('const uint8_t SPLASH_SCREEN_SCENE_ID = 1;')
+
+    cpp('\n#endif')
     cpp.close()
 
 def generate_image_file(path):
@@ -170,13 +117,12 @@ def create_new_game(game_name):
         os.mkdir(game_name)
         print ('Generate .ino file for {0}...'.format(game_name))
         generate_main_ino(game_name + '/', game_name)
-        print ('Generate Global file...')
-        generate_global(game_name + '/')
         print ('Copying ArduEngine library into {0}...'.format(game_name))
         copy_tree("ArduEngine", game_name + "/ArduEngine")
         print ('Add Sample Splash Screen Scene')
         generate_game_scene(game_name + '/', 'SplashScreen')
         generate_image_file(game_name + '/')
+        generate_scene_id_file(game_name + '/')
         print ('{0} is ready to develop!'.format(game_name))
 
 # add_game_scene('MainMenu')
