@@ -44,6 +44,7 @@ def generate_main_ino(path, game_name):
     cpp('')
     cpp('#include "ArduEngine/ArduRect.cpp"')
     cpp('#include "ArduEngine/ArduSprite.cpp"')
+    cpp('#include "ArduEngine/ArduText.cpp"')
     cpp('#include "ArduEngine/ArduEngine.cpp"')
     cpp('')
     cpp('#include "Images.h"')

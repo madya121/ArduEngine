@@ -73,4 +73,18 @@ class ArduSprite : public ArduRect {
     const uint8_t *image;
 };
 
+class ArduText : public ArduObject {
+  public:
+    ArduText(int16_t _x, int16_t _y, char *_text): x(_x), y(_y), text(_text) {};
+    virtual void Update(ArduEngine &engine);
+    void SetText(char *_text);
+    void SetSize(uint8_t _size);
+    void SetPosition(int16_t _x, int16_t _y);
+
+  private:
+    int16_t x, y;
+    uint8_t size;
+    char *text;
+};
+
 #endif
