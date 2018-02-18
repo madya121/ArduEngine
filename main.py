@@ -17,10 +17,9 @@ def generate_game_scene(path, scene_name):
     with cpp.subs(name=scene_name):
         with cpp.block('class $name$ : public ArduScene', ';'):
             cpp.label('public')
-            with cpp.block(scene_name + '(ArduEngine &engine, uint8_t sceneID) : ArduScene(sceneID)'):
+            with cpp.block(scene_name + '(ArduEngine &engine, uint8_t sceneID) : ArduScene(sceneID, engine)'):
                 cpp('// This will be called once when the game start')
-                cpp('logo = new ArduSprite(0, 0, 128, 64, WHITE, arduengine_splash);')
-                cpp('engine.RegisterObject(*logo);')
+                cpp('logo = new ArduSprite(0, 0, 128, 64, WHITE, arduengine_splash, engine);')
             with cpp.block('void Load(ArduEngine &engine)'):
                 cpp('// This will be called once everytime we enter this scene')
             with cpp.block('void Run(ArduEngine &engine)'):
@@ -66,13 +65,14 @@ def generate_main_ino(path, game_name):
 
     with cpp.block('void InitializeScenes()'):
         cpp('// Initialize Scene')
-        cpp('splashScreen = new SplashScreen(*arduEngine, 1);')
-        cpp('arduEngine->RegisterScene(*splashScreen);')
+        cpp('splashScreen = new SplashScreen(*arduEngine, SPLASH_SCREEN_SCENE_ID);\n')
+
+        cpp('arduEngine->SetScene(SPLASH_SCREEN_SCENE_ID);')
 
     cpp('')
     with cpp.block('void setup()'):
         cpp('arduboy.begin();')
-        cpp('arduboy.setFrameRate(60);')
+        cpp('arduboy.setFrameRate(30);')
         cpp('arduboy.initRandomSeed();\n')
         cpp('InitializeScenes();')
 

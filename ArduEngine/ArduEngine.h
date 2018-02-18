@@ -2,6 +2,7 @@
 #define ARDU_ENGINE_H
 
 #include <Arduboy2.h>
+#include <string.h>
 
 class ArduObject;
 class ArduScene;
@@ -33,7 +34,9 @@ class ArduEngine {
 
 class ArduScene {
   public:
-    ArduScene(uint8_t _sceneID): sceneID(_sceneID) {};
+    ArduScene(uint8_t _sceneID, ArduEngine &engine): sceneID(_sceneID) {
+      engine.RegisterScene(*this);
+    };
     virtual void Load(ArduEngine &engine) {};
     virtual void Run(ArduEngine &engine) {};
     virtual void Destroy(ArduEngine &engine) {};
@@ -52,8 +55,10 @@ class ArduObject {
 class ArduRect : public ArduObject {
   public:
     ArduRect();
-    ArduRect(int16_t _x, int16_t _y, int16_t _w, int16_t _h, uint8_t _color):
-      ArduObject(), x(_x), y(_y), w(_w), h(_h), color(_color), isFill(false) {};
+    ArduRect(int16_t _x, int16_t _y, int16_t _w, int16_t _h, uint8_t _color, ArduEngine &engine):
+      ArduObject(), x(_x), y(_y), w(_w), h(_h), color(_color), isFill(false) {
+        engine.RegisterObject(*this);
+      };
     virtual void Update(ArduEngine &engine);
 
     int16_t x, y;
@@ -64,10 +69,9 @@ class ArduRect : public ArduObject {
 
 class ArduSprite : public ArduRect {
   public:
-    ArduSprite(int16_t _x, int16_t _y, int16_t _w, int16_t _h, uint8_t _color, const uint8_t *_image):
-      ArduRect(_x, _y, _w, _h, _color),
-      image(_image)
-      {};
+    ArduSprite(int16_t _x, int16_t _y, int16_t _w, int16_t _h, uint8_t _color, const uint8_t *_image, ArduEngine &engine):
+      ArduRect(_x, _y, _w, _h, _color, engine),
+      image(_image) {};
     virtual void Update(ArduEngine &engine);
 
     const uint8_t *image;
@@ -75,16 +79,17 @@ class ArduSprite : public ArduRect {
 
 class ArduText : public ArduObject {
   public:
-    ArduText(int16_t _x, int16_t _y, char *_text): x(_x), y(_y), text(_text) {};
+    ArduText(int16_t _x, int16_t _y, const char *_text, ArduEngine &engine);
     virtual void Update(ArduEngine &engine);
-    void SetText(char *_text);
+    void SetText(const char *_text);
+    void SetText(int16_t _number);
     void SetSize(uint8_t _size);
     void SetPosition(int16_t _x, int16_t _y);
 
   private:
     int16_t x, y;
     uint8_t size;
-    char *text;
+    char text[64];
 };
 
 #endif
