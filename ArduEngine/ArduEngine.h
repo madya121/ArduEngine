@@ -7,6 +7,14 @@
 class ArduObject;
 class ArduScene;
 
+class ArduCamera {
+  public:
+    ArduCamera(): x(0), y(0) {};
+    void WorldToCameraPosition(int16_t _x, int16_t _y, int16_t *outX, int16_t *outY);
+
+    int16_t x, y;
+};
+
 class ArduEngine {
   public:
     ArduEngine(Arduboy2 &arduboy);
@@ -16,6 +24,7 @@ class ArduEngine {
     void RegisterScene(ArduScene &scene);
     void FreedScenes();
     void SetScene(uint8_t sceneID);
+    ArduCamera* GetCamera();
 
     Arduboy2 *arduboy;
 
@@ -30,6 +39,8 @@ class ArduEngine {
     uint8_t currentSceneLimit;
 
     ArduScene *currentScene;
+
+    ArduCamera *camera;
 };
 
 class ArduScene {

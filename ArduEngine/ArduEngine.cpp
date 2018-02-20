@@ -21,6 +21,8 @@ ArduEngine::ArduEngine(Arduboy2 &arduboy) {
   this->arduboy = &arduboy;
 
   currentScene = NULL;
+
+  camera = new ArduCamera();
 }
 
 void ArduEngine::Update(Arduboy2 &arduboy) {
@@ -88,6 +90,10 @@ void ArduEngine::FreedScenes() {
   for (uint8_t i = 0; i < totalScene; i++)
     delete (scenes + i);
   totalScene = 0;
+}
+
+ArduCamera* ArduEngine::GetCamera() {
+  return camera;
 }
 
 #endif
