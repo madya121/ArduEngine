@@ -25,6 +25,23 @@ ArduEngine::ArduEngine(Arduboy2 &arduboy) {
   camera = new ArduCamera();
 }
 
+ArduEngine::~ArduEngine(void) {
+
+  // Destroy all objects
+  for (uint8_t i = 0; i < totalObject; i++)
+    delete objects[i];
+  delete[] objects;
+  totalObject = 0;
+
+  // Destroy all scenes
+  for (uint8_t i = 0; i < totalScene; i++)
+    delete scenes[i];
+  delete[] scenes;
+  totalScene = 0;
+
+  delete camera;
+}
+
 void ArduEngine::Update(Arduboy2 &arduboy) {
   for (uint8_t i = 0; i < totalObject; i++) {
     objects[i]->Update(*this);
@@ -59,6 +76,8 @@ void ArduEngine::RegisterObject(ArduObject &object) {
     for (uint8_t i = 0; i < totalObject; i++)
       arrObject[i] = objects[i];
 
+    delete[] objects;
+
     objects = arrObject;
     currentObjectLimit += ARR_LIMIT;
   }
@@ -68,7 +87,7 @@ void ArduEngine::RegisterObject(ArduObject &object) {
 
 void ArduEngine::FreedObjects() {
   for (uint8_t i = 0; i < totalObject; i++)
-    delete (objects + i);
+    delete objects[i];
   totalObject = 0;
 }
 
@@ -79,6 +98,8 @@ void ArduEngine::RegisterScene(ArduScene &scene) {
     for (uint8_t i = 0; i < totalScene; i++)
       arrScene[i] = scenes[i];
 
+    delete[] scenes;
+
     scenes = arrScene;
     currentSceneLimit += ARR_LIMIT;
   }
@@ -88,7 +109,7 @@ void ArduEngine::RegisterScene(ArduScene &scene) {
 
 void ArduEngine::FreedScenes() {
   for (uint8_t i = 0; i < totalScene; i++)
-    delete (scenes + i);
+    delete scenes[i];
   totalScene = 0;
 }
 

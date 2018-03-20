@@ -18,6 +18,7 @@ class ArduCamera {
 class ArduEngine {
   public:
     ArduEngine(Arduboy2 &arduboy);
+    ~ArduEngine(void);
     void Update(Arduboy2 &arduboy);
     void RegisterObject(ArduObject &object);
     void FreedObjects();
