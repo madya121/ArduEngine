@@ -4,15 +4,65 @@ import os
 import sys
 from distutils.dir_util import copy_tree
 
+def generate_scene_id(name):
+    result = '';
+    for c in name:
+        if c.isupper():
+            result = result + '_'
+        result = result + c.upper()
+    
+    return result[1:] + '_SCENE_ID'
+    
+def generate_scene_variable(name):
+    return name[:1].lower() + name[1:-4]
+        
+
+def generate_scene_manager(path, game_name):
+    files = os.listdir('Projects/' + game_name + '/Scenes/')
+
+    cpp = CppFile(path + 'SceneManager.cpp')
+    cpp('#ifndef SCENE_MANAGER_CPP')
+    cpp('#define SCENE_MANAGER_CPP')
+    
+    cpp('')
+    
+    for file in files:
+        cpp('#include "Scenes/' + file + '"')
+    
+    cpp('')
+    
+    for i in range(len(files)):
+        id = generate_scene_id(files[i][:-4])
+        cpp('const uint8_t ' + id + ' = ' + str(i) + ';')
+    
+    cpp('')
+    
+    with cpp.block('class SceneManager', ';'):
+        cpp.label('public')
+        
+        for file in files:
+            var = generate_scene_variable(file)
+            cpp(file[:-4] + ' *' + var + ';\n')
+        
+        with cpp.block('SceneManager(ArduEngine &engine)'):
+            
+            for file in files:
+                var = generate_scene_variable(file)
+                id  = generate_scene_id(file[:-4])
+                cpp(var + ' = new ' + file[:-4] + '(engine, ' + id + ');')
+    
+    cpp('#endif')
+    cpp.close()
+
 def generate_game_scene(path, scene_name):
     cpp = CppFile(path + scene_name + '.cpp')
     cpp('#ifndef ' + scene_name + '_CPP')
     cpp('#define ' + scene_name + '_CPP')
 
-    cpp('\n#include "ArduEngine/ArduEngine.h"\n')
+    cpp('\n#include "../ArduEngine/ArduEngine.h"\n')
 
-    cpp('#include "Images.h"')
-    cpp('#include "SceneID.h"\n')
+    cpp('#include "../Images.h"')
+    cpp('#include "../SceneManager.cpp"\n')
 
     with cpp.subs(name=scene_name):
         with cpp.block('class $name$ : public ArduScene', ';'):
@@ -46,35 +96,24 @@ def generate_main_ino(path, game_name):
     cpp('#include "ArduEngine/ArduText.cpp"')
     cpp('#include "ArduEngine/ArduEngine.cpp"')
     cpp('')
-    cpp('#include "Images.h"')
-    cpp('#include "SceneID.h"')
+    cpp('#include "SceneManager.cpp"')
     cpp('')
-    cpp('// Scene')
-    cpp('#include "SplashScreen.cpp"')
+    cpp('#include "Images.h"')
     cpp('')
 
     # Declarations
     cpp('Arduboy2 arduboy;')
     cpp('ArduboyTones sound(arduboy.audio.enabled);')
     cpp('ArduEngine *arduEngine = new ArduEngine(arduboy);')
-
     cpp('')
-    cpp('// Scene Declaration')
-    cpp('SplashScreen *splashScreen;')
-    cpp('')
-
-    with cpp.block('void InitializeScenes()'):
-        cpp('// Initialize Scene')
-        cpp('splashScreen = new SplashScreen(*arduEngine, SPLASH_SCREEN_SCENE_ID);\n')
-
-        cpp('arduEngine->SetScene(SPLASH_SCREEN_SCENE_ID);')
+    cpp('SceneManager *sceneManager = new SceneManager(*arduEngine);')
 
     cpp('')
     with cpp.block('void setup()'):
         cpp('arduboy.begin();')
         cpp('arduboy.setFrameRate(30);')
         cpp('arduboy.initRandomSeed();\n')
-        cpp('InitializeScenes();')
+        cpp('arduEngine->SetScene(SPLASH_SCREEN_SCENE_ID);')
 
     cpp('')
     with cpp.block('void loop()'):
@@ -111,19 +150,29 @@ def generate_image_file(path):
 
 
 def create_new_game(game_name):
-    if os.path.isdir(game_name):
+    if os.path.isdir('Projects') == False:
+        os.mkdir('Projects');
+        
+    if os.path.isdir('Projects/' + game_name):
         print ('{0} is already exist'.format(game_name))
     else:
         print ('Create folder {0}...'.format(game_name))
-        os.mkdir(game_name)
+        os.mkdir('Projects/' + game_name)
+        
         print ('Generate .ino file for {0}...'.format(game_name))
-        generate_main_ino(game_name + '/', game_name)
+        generate_main_ino('Projects/' + game_name + '/', game_name)
+        
         print ('Copying ArduEngine library into {0}...'.format(game_name))
-        copy_tree("ArduEngine", game_name + "/ArduEngine")
+        copy_tree("ArduEngine", 'Projects/' + game_name + "/ArduEngine")
+        
         print ('Add Sample Splash Screen Scene')
-        generate_game_scene(game_name + '/', 'SplashScreen')
-        generate_image_file(game_name + '/')
-        generate_scene_id_file(game_name + '/')
+        os.mkdir('Projects/' + game_name + '/Scenes');
+        generate_game_scene('Projects/' + game_name + '/Scenes/', 'SplashScreen')
+        
+        generate_image_file('Projects/' + game_name + '/')
+        # generate_scene_id_file('Projects/' + game_name + '/')
+        generate_scene_manager('Projects/' + game_name + '/', game_name);
+        
         print ('{0} is ready to develop!'.format(game_name))
 
 # add_game_scene('MainMenu')
