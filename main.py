@@ -3,6 +3,7 @@ import json
 import os
 import sys
 from distutils.dir_util import copy_tree
+from shutil import copy
 
 def generate_scene_id(name):
     result = '';
@@ -42,7 +43,9 @@ def generate_scene_manager(path, game_name):
         
         for file in files:
             var = generate_scene_variable(file)
-            cpp(file[:-4] + ' *' + var + ';\n')
+            cpp(file[:-4] + ' *' + var + ';')
+        
+        cpp('')
         
         with cpp.block('SceneManager(ArduEngine &engine)'):
             
@@ -179,3 +182,8 @@ def create_new_game(game_name):
 # generate_main_ino('GameSomething')
 create_new_game(sys.argv[1])
 # generate_game_scene('Scene');
+
+copy ('ArduEngine.py', 'Projects/{0}/ArduEngine.py'.format(sys.argv[1]))
+
+os.chdir('Projects/{0}/'.format(sys.argv[1]))
+os.system('python ArduEngine.py')
