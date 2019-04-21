@@ -147,10 +147,12 @@ def display_scenes_table():
     files = os.listdir('Scenes/')
     
     indx = 1
+    print ('  ', end='')
     for i in range(50):
         print ('#', end='')
     print ()
-    print ('#\tList Of Scenes'.ljust(43) + '#')
+    print ('  #\tList Of Scenes'.ljust(47) + '#')
+    print ('  ', end='')
     for i in range(50):
         print ('#', end='')
     print ()
@@ -158,9 +160,10 @@ def display_scenes_table():
         
     for file in files:
         if file.endswith('.cpp'):
-            print (('#\t' + (str(indx) + ". ").ljust(3) + file[:-4]).ljust(43) + '#')
+            print (('  #\t' + (str(indx) + ". ").ljust(3) + file[:-4]).ljust(47) + '#')
             indx = indx + 1
         
+    print ('  ', end='')
     for i in range(50):
         print ('#', end='')
     print ()
@@ -264,9 +267,11 @@ def main_menu():
 
     print ()
     print ()
-    print ('1. Create New Scene')
-    print ('2. Delete Scene')
-    print ('3. Refresh Scene Manager')
+    print ('  1. Create New Scene')
+    print ('  2. Delete Scene')
+    print ('  3. Refresh Scene Manager')
+    print ()
+    print ('  Press \'q\' To Exit')
     print ()
     
     try:
