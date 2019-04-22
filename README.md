@@ -52,5 +52,8 @@ Every scenes inside the `/Backups` folder are safe to delete.
     YourProjectName.ino # Your main code
 ```
 
+## Set Scene
+To set the first scene to be shown when the game is turned on, go to your `YourProjectName.ino` file, and look inside the `setup()` method. You will find `arduEngine->SetScene(SPLASH_SCREEN_SCENE_ID);`. After you create some other scenes, change the `SPLASH_SCREEN_SCENE_ID` into your scene ID defined inside the `SceneManager.cpp`.
 
+To change the scene from your scene, once you have the `&arduEngine` object, you can use `arduEngine.SetScene(YOUR_SCENE_ID)` to change into a different scene.
 
