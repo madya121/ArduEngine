@@ -175,7 +175,6 @@ def generate_game_scene(scene_name):
 
     cpp('\n#include "../ArduEngine/ArduEngine.h"\n')
 
-    cpp('#include "../SceneID.cpp"')
     cpp('#include "../Images.h"')
     cpp('#include "../SceneManager.cpp"\n')
 
@@ -211,21 +210,6 @@ def generate_scene_id(name):
 def generate_scene_variable(name):
     return name[:1].lower() + name[1:-4]
     
-def generate_scene_id_file():
-    files = os.listdir('Scenes/')
-    cpp = CppFile('SceneID.cpp')
-    cpp('#ifndef SCENE_ID_CPP')
-    cpp('#define SCENE_ID_CPP')
-    cpp('')
-    for i in range(len(files)):
-        if (files[i].endswith('.cpp')):
-            id = generate_scene_id(files[i][:-4])
-            cpp('const int ' + id + ' = ' + str(i + 1) + ';')
-
-    cpp('')
-    cpp('#endif')
-    cpp.close()
-
 def generate_scene_manager():
     files = os.listdir('Scenes/')
 
@@ -235,10 +219,16 @@ def generate_scene_manager():
     
     cpp('')
     
-    cpp('#include "SceneID.cpp"')
     for file in files:
         if file.endswith('.cpp'):
             cpp('#include "Scenes/' + file + '"')
+    
+    cpp('')
+    
+    for i in range(len(files)):
+        if (files[i].endswith('.cpp')):
+            id = generate_scene_id(files[i][:-4])
+            cpp('const uint8_t ' + id + ' = ' + str(i) + ';')
     
     cpp('')
     
@@ -262,8 +252,6 @@ def generate_scene_manager():
     
     cpp('#endif')
     cpp.close()
-    
-    generate_scene_id_file()
 
 MAIN_MENU = 1
 CREATE_SCENE = 2

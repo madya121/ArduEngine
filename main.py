@@ -16,22 +16,7 @@ def generate_scene_id(name):
     
 def generate_scene_variable(name):
     return name[:1].lower() + name[1:-4]
-
-def generate_scene_id_file(path, game_name):
-    files = os.listdir('Projects/' + game_name + '/Scenes/')
-    
-    cpp = CppFile(path + 'SceneID.cpp')
-    cpp('#ifndef SCENE_ID_CPP')
-    cpp('#define SCENE_ID_CPP')
-    cpp('')
-
-    for i in range(len(files)):
-        if (files[i].endswith('.cpp')):
-            id = generate_scene_id(files[i][:-4])
-            cpp('const int ' + id + ' = ' + str(i + 1) + ';')
-    cpp('')    
-    cpp('#endif')
-    cpp.close()
+        
 
 def generate_scene_manager(path, game_name):
     files = os.listdir('Projects/' + game_name + '/Scenes/')
@@ -42,9 +27,14 @@ def generate_scene_manager(path, game_name):
     
     cpp('')
     
-    cpp('#include "SceneID.cpp"')
     for file in files:
         cpp('#include "Scenes/' + file + '"')
+    
+    cpp('')
+    
+    for i in range(len(files)):
+        id = generate_scene_id(files[i][:-4])
+        cpp('const uint8_t ' + id + ' = ' + str(i) + ';')
     
     cpp('')
     
@@ -74,7 +64,6 @@ def generate_game_scene(path, scene_name):
 
     cpp('\n#include "../ArduEngine/ArduEngine.h"\n')
 
-    cpp('#include "../SceneID.cpp"')
     cpp('#include "../Images.h"')
     cpp('#include "../SceneManager.cpp"\n')
 
@@ -110,7 +99,6 @@ def generate_main_ino(path, game_name):
     cpp('#include "ArduEngine/ArduText.cpp"')
     cpp('#include "ArduEngine/ArduEngine.cpp"')
     cpp('')
-    cpp('#include "SceneID.cpp"')
     cpp('#include "SceneManager.cpp"')
     cpp('')
     cpp('#include "Images.h"')
@@ -140,16 +128,16 @@ def generate_main_ino(path, game_name):
 
     cpp.close()
 
-#def generate_scene_id_file(path):
-#    cpp = CppFile(path + 'SceneID.h')
-#
-#    cpp('#ifndef SCENE_ID_H')
-#    cpp('#define SCENE_ID_H\n')
-#
-#    cpp('const uint8_t SPLASH_SCREEN_SCENE_ID = 1;')
-#
-#    cpp('\n#endif')
-#    cpp.close()
+def generate_scene_id_file(path):
+    cpp = CppFile(path + 'SceneID.h')
+
+    cpp('#ifndef SCENE_ID_H')
+    cpp('#define SCENE_ID_H\n')
+
+    cpp('const uint8_t SPLASH_SCREEN_SCENE_ID = 1;')
+
+    cpp('\n#endif')
+    cpp.close()
 
 def generate_image_file(path):
     cpp = CppFile(path + 'Images.h')
@@ -186,8 +174,7 @@ def create_new_game(game_name):
         
         generate_image_file('Projects/' + game_name + '/')
         # generate_scene_id_file('Projects/' + game_name + '/')
-        generate_scene_manager('Projects/' + game_name + '/', game_name)
-        generate_scene_id_file('Projects/' + game_name + '/', game_name)
+        generate_scene_manager('Projects/' + game_name + '/', game_name);
         
         print ('{0} is ready to develop!'.format(game_name))
 
