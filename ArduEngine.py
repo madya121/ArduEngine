@@ -184,12 +184,19 @@ def generate_game_scene(scene_name):
             with cpp.block(scene_name + '(ArduEngine &engine, uint8_t sceneID) : ArduScene(sceneID, engine)'):
                 cpp('// This will be called once when the game start')
                 cpp('logo = new ArduSprite(0, 0, 128, 64, WHITE, arduengine_splash, engine);')
+            cpp('')
+            
             with cpp.block('void Load(ArduEngine &engine)'):
                 cpp('// This will be called once everytime we enter this scene')
+            cpp('')
+            
             with cpp.block('void Run(ArduEngine &engine)'):
                 cpp("// This will be called every frame when we're in this scene")
+            cpp('')
+            
             with cpp.block('void Destroy(ArduEngine &engine)'):
                 cpp('// This will be called once everytime we leave this scene')
+            cpp('')
 
             cpp.label('\nprivate')
             cpp('  ArduSprite *logo;')
@@ -219,16 +226,16 @@ def generate_scene_manager():
     
     cpp('')
     
-    for file in files:
-        if file.endswith('.cpp'):
-            cpp('#include "Scenes/' + file + '"')
-    
-    cpp('')
-    
     for i in range(len(files)):
         if (files[i].endswith('.cpp')):
             id = generate_scene_id(files[i][:-4])
-            cpp('const uint8_t ' + id + ' = ' + str(i) + ';')
+            cpp('const int ' + id + ' = ' + str(i) + ';')
+    
+    cpp('')
+    
+    for file in files:
+        if file.endswith('.cpp'):
+            cpp('#include "Scenes/' + file + '"')
     
     cpp('')
     
