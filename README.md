@@ -1,4 +1,6 @@
 # ArduEngine
+![](./Images/ArduNX.jpg)
+
 Simple Arduboy Scene Management Framework
 
 ## Getting Started
@@ -16,7 +18,7 @@ python ./main.py [Your Project Name]
 ## ArduEngine Window
 This tool manages your scenes and removes boilerplate while creating a new scene for yor game.
 
-[IMG]
+![](./Images/Console.PNG)
 
 1. List of your scenes
 2. Press 1 if you want to create a new scene
