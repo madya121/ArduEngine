@@ -5,14 +5,12 @@
 
 #include "ArduEngine.h"
 
-ArduText::ArduText(int16_t _x, int16_t _y, const char *_text, ArduEngine &engine) {
+ArduText::ArduText(int16_t _x, int16_t _y, const char *_text, ArduEngine &engine): ArduObject(engine) {
   this->x = _x;
   this->y = _y;
 
   this->size = 1;
   strcpy (this->text, _text);
-
-  engine.RegisterObject(*this);
 }
 
 void ArduText::Update(ArduEngine &engine) {

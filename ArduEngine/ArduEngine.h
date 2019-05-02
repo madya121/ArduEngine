@@ -58,7 +58,9 @@ class ArduScene {
 
 class ArduObject {
   public:
-    ArduObject(): isEnabled(true) {};
+    ArduObject(ArduEngine &engine): isEnabled(true) {
+      engine.RegisterObject(*this);
+    };
     virtual void Update(ArduEngine &engine) {};
 
     bool isEnabled;
@@ -68,9 +70,7 @@ class ArduRect : public ArduObject {
   public:
     ArduRect();
     ArduRect(int16_t _x, int16_t _y, int16_t _w, int16_t _h, uint8_t _color, ArduEngine &engine):
-      ArduObject(), x(_x), y(_y), w(_w), h(_h), color(_color), isFill(false) {
-        engine.RegisterObject(*this);
-      };
+      ArduObject(engine), x(_x), y(_y), w(_w), h(_h), color(_color), isFill(false) {};
     virtual void Update(ArduEngine &engine);
 
     int16_t x, y;
